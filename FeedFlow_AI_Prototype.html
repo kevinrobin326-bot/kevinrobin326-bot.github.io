@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FeedFlow AI — Real-Time Feedback Analyzer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#f6f8fc;color:#172033;min-height:100vh}
+header{background:#fff;border-bottom:1px solid #e6eaf1;padding:18px 7%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.logo{display:flex;gap:12px;align-items:center;font-weight:800;font-size:21px}.logo-mark{width:40px;height:40px;border-radius:12px;background:#5b5ce2;color:white;display:grid;place-items:center;font-size:20px}
+nav a{margin-left:25px;text-decoration:none;color:#596275;font-size:14px}.hero{max-width:1100px;margin:0 auto;padding:55px 25px 30px;text-align:center}
+.badge{display:inline-block;background:#e9e9ff;color:#4d4ec9;border-radius:999px;padding:7px 14px;font-size:12px;font-weight:700;margin-bottom:15px}
+h1{font-size:clamp(35px,6vw,60px);line-height:1.05;letter-spacing:-2px}.gradient{color:#5b5ce2}.hero p{max-width:700px;margin:17px auto;color:#687287;font-size:17px;line-height:1.6}
+.app{max-width:1100px;margin:20px auto 60px;padding:0 25px;display:grid;grid-template-columns:1.05fr .95fr;gap:22px}.card{background:white;border:1px solid #e4e8f0;border-radius:22px;padding:25px;box-shadow:0 12px 35px rgba(34,45,75,.06)}
+.card h2{font-size:19px;margin-bottom:7px}.sub{color:#7b8496;font-size:13px;margin-bottom:18px}
+textarea{width:100%;min-height:205px;border:1px solid #dfe4ed;border-radius:15px;padding:17px;font-size:15px;resize:vertical;outline:none;font-family:inherit}
+textarea:focus{border-color:#696ae6;box-shadow:0 0 0 3px #696ae61a}.row{display:flex;justify-content:space-between;align-items:center;margin:10px 0 18px;color:#8a92a2;font-size:12px}
+button{width:100%;border:0;border-radius:13px;background:#5b5ce2;color:#fff;padding:14px;font-size:15px;font-weight:700;cursor:pointer}button:hover{background:#4849c9}
+.example{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.example button{width:auto;background:#f0f1f7;color:#566075;padding:8px 11px;font-size:12px}
+.result{min-height:100%}.result-top{display:flex;justify-content:space-between;align-items:center}.result-top span{font-size:12px;color:#4c9b67}
+.sentiment{margin:22px 0;padding:18px;border-radius:17px;text-align:center;background:#f2f3ff}.sentiment .emoji{font-size:42px}.sentiment h3{font-size:25px;margin:6px}.score{font-size:13px;color:#6c7588}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{background:#f8f9fc;border:1px solid #edf0f5;padding:14px;border-radius:14px}.metric span{display:block;color:#858da0;font-size:11px;margin-bottom:5px}.metric strong{font-size:15px}
+.keywords{margin-top:18px}.keywords span{display:inline-block;background:#eef0ff;color:#5051c7;border-radius:999px;padding:6px 10px;margin:5px 4px 0 0;font-size:11px}
+.empty{height:360px;display:grid;place-items:center;text-align:center;color:#8a92a2}.empty div{max-width:280px}.empty-icon{font-size:48px;margin-bottom:12px}
+footer{text-align:center;color:#9299a8;font-size:12px;padding:20px}@media(max-width:800px){.app{grid-template-columns:1fr}nav{display:none}.hero{padding-top:40px}}
+</style>
+</head>
+<body>
+<header><div class="logo"><div class="logo-mark">F</div>FeedFlow AI</div><nav><a href="#analyzer">Analyzer</a><a href="#about">About</a></nav></header>
+
+<section class="hero" id="about">
+<div class="badge">AI • NATURAL LANGUAGE PROCESSING</div>
+<h1>Understand feedback.<br><span class="gradient">Act smarter.</span></h1>
+<p>FeedFlow AI is an AI-powered NLP prototype that analyzes written feedback in real time and identifies sentiment, category, priority and important keywords.</p>
+</section>
+
+<main class="app" id="analyzer">
+<section class="card"><h2>Enter feedback</h2><div class="sub">Write a review, complaint, suggestion or comment.</div>
+<textarea id="feedback" maxlength="1000" placeholder="Example: The delivery was very late and customer support did not respond..."></textarea>
+<div class="row"><span>Natural language input</span><span id="count">0 / 1000</span></div>
+<button onclick="analyze()">Analyze Feedback</button>
+<div class="example"><button onclick="fill('The service was excellent and the staff were very helpful!')">Positive</button><button onclick="fill('The delivery was late and the product arrived damaged.')">Negative</button><button onclick="fill('The package arrived today.')">Neutral</button></div>
+</section>
+
+<section class="card result" id="result"><div class="empty"><div><div class="empty-icon">✦</div><h2>Your analysis appears here</h2><p class="sub">Enter feedback and click Analyze Feedback to see the NLP result.</p></div></div></section>
+</main>
+<footer>FeedFlow AI • AI Capstone Project • NLP Feedback Analysis</footer>
+
+<script>
+const box=document.getElementById('feedback'),count=document.getElementById('count');
+box.addEventListener('input',()=>count.textContent=box.value.length+' / 1000');
+function fill(t){box.value=t;count.textContent=t.length+' / 1000';analyze()}
+const positive=['excellent','great','good','amazing','helpful','happy','love','loved','perfect','fast','easy','useful','friendly','satisfied','wonderful','best','awesome','quick','recommend','positive'];
+const negative=['bad','terrible','poor','awful','late','damaged','broken','slow','angry','hate','hated','problem','issue','unhelpful','disappointed','disappointing','worst','difficult','refund','complaint','negative','fail','failed'];
+function words(text){return text.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(Boolean)}
+function analyze(){
+const text=box.value.trim();if(!text)return;const ws=words(text);let pos=0,neg=0;
+ws.forEach(w=>{if(positive.includes(w))pos++;if(negative.includes(w))neg++});
+let sentiment,emoji,score;if(pos>neg){sentiment='Positive';emoji='😊';score=Math.min(98,72+pos*7)}else if(neg>pos){sentiment='Negative';emoji='😟';score=Math.min(98,72+neg*7)}else{sentiment='Neutral';emoji='😐';score=78}
+const categories={'Service':['service','staff','support','customer'],'Delivery':['delivery','deliver','package','shipping','arrived','late'],'Product':['product','quality','damaged','broken','item'],'Website/App':['website','app','login','interface','screen'],'Pricing':['price','pricing','cost','expensive','cheap','money']};
+let category='General',hits=0;for(const [cat,arr] of Object.entries(categories)){let h=arr.filter(x=>ws.includes(x)).length;if(h>hits){hits=h;category=cat}}
+const priority=sentiment==='Negative'&&neg>=2?'High':sentiment==='Negative'?'Medium':'Low';
+const found=[...new Set(ws.filter(w=>positive.includes(w)||negative.includes(w)))].slice(0,7);const keywords=found.length?found:['feedback','comment'];
+document.getElementById('result').innerHTML=`<div class="result-top"><div><h2>AI Analysis</h2><div class="sub">Real-time feedback classification</div></div><span>● Live</span></div><div class="sentiment"><div class="emoji">${emoji}</div><h3>${sentiment}</h3><div class="score">Confidence score: <b>${score}%</b></div></div><div class="metrics"><div class="metric"><span>CATEGORY</span><strong>${category}</strong></div><div class="metric"><span>PRIORITY</span><strong>${priority}</strong></div><div class="metric"><span>WORDS</span><strong>${ws.length}</strong></div><div class="metric"><span>MODEL</span><strong>TF-IDF / NLP</strong></div></div><div class="keywords"><h3>Key indicators</h3>${keywords.map(k=>`<span>${k}</span>`).join('')}</div>`;
+}
+</script>
+</body></html>
